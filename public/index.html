@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+  </head>
+  <body>
+    <div id="container"></div>
+
+    <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="//fb.me/react-0.13.3.min.js"></script>
+    <script src="//fb.me/JSXTransformer-0.13.3.js"></script>
+    <script type="text/jsx">
+    var Request = React.createClass({
+      render: function () {
+        return <tr>
+          <td>{this.props.request.IP}</td>
+          <td>{this.props.request.Song.ID}</td>
+          <td>{this.props.request.Song.Name}</td>
+          <td>{this.props.request.Song.Artist}</td>
+        </tr>;
+      }
+    });
+
+    var Playlist = React.createClass({
+      render: function () {
+        var requests = this.props.requests.map(function (request) {
+          return <Request request={request} />;
+        });
+        return <table>{requests}</table>;
+      }
+    });
+
+    $.getJSON("/requests", function (requests) {
+      React.render(<Playlist requests={requests} />, document.getElementById("container"));
+    });
+    </script>
+  </body>
+</html>
