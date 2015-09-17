@@ -1,4 +1,4 @@
-package dj
+package junmusic
 
 import "net"
 

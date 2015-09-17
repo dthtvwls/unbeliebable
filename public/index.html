@@ -1,39 +1,89 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <title>music.junlabs.com</title>
     <meta charset="UTF-8">
-    <title></title>
-  </head>
-  <body>
-    <div id="container"></div>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
     <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="//fb.me/react-0.13.3.min.js"></script>
     <script src="//fb.me/JSXTransformer-0.13.3.js"></script>
     <script type="text/jsx">
+    var Result = React.createClass({
+      render: function () {
+        return <li><a href="#">{this.props.result}</a></li>;
+      }
+    });
+    var SearchBar = React.createClass({
+      loadResultsFromServer: function () {
+        $.getJSON(this.props.src, function (results) {
+          if (this.isMounted()) this.setState({ results: results });
+        }.bind(this));
+      },
+      handleSubmit: function (event) {
+        event.preventDefault();
+      }
+      getInitialState: function () {
+        return { results: [] };
+      },
+      render: function () {
+        var results = this.state.results.map(function (result) {
+          return <Result result={result} />;
+        });
+        return <nav className="navbar navbar-default navbar-fixed-top">
+          <div className="container">
+            <form action="/search" className="navbar-form" onSubmit="{this.handleSubmit}">
+              <div className="input-group input-group-lg">
+                <span className="input-group-addon">
+                  <span className="glyphicon glyphicon-search"></span>
+                </span>
+                <input name="q" placeholder="search for a song..." className="form-control" required data-toggle="dropdown" />
+                <ul className="dropdown-menu">
+                  {results}
+                </ul>
+              </div>
+            </form>
+          </div>
+        </nav>;
+      }
+    });
+
     var Request = React.createClass({
       render: function () {
         return <tr>
-          <td>{this.props.request.IP}</td>
-          <td>{this.props.request.Song.ID}</td>
           <td>{this.props.request.Song.Name}</td>
+          <td>&mdash;</td>
           <td>{this.props.request.Song.Artist}</td>
         </tr>;
       }
     });
 
     var Playlist = React.createClass({
+      loadRequestsFromServer: function () {
+        $.getJSON(this.props.src, function (requests) {
+          if (this.isMounted()) this.setState({ requests: requests });
+        }.bind(this));
+      },
+      getInitialState: function () {
+        return { requests: [] };
+      },
+      componentDidMount: function () {
+        this.loadRequestsFromServer();
+        setInterval(this.loadRequestsFromServer, 5000);
+      },
       render: function () {
-        var requests = this.props.requests.map(function (request) {
+        var requests = this.state.requests.map(function (request) {
           return <Request request={request} />;
         });
-        return <table>{requests}</table>;
+        return <div className="container">
+          <table>{requests}</table>
+        </div>;
       }
     });
 
-    $.getJSON("/requests", function (requests) {
-      React.render(<Playlist requests={requests} />, document.getElementById("container"));
-    });
+    //React.render(<Playlist src="/requests" />, document.body);
+    React.render(<SearchBar src="/search" />, document.body);
     </script>
-  </body>
+  </head>
 </html>
