@@ -7,41 +7,45 @@
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
     <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="//fb.me/react-0.13.3.min.js"></script>
+    <script src="//fb.me/react-0.13.3.js"></script>
     <script src="//fb.me/JSXTransformer-0.13.3.js"></script>
     <script type="text/jsx">
     var Result = React.createClass({
+      handleClick: function (e) {
+        event.preventDefault();
+        var data = { name: e.target.dataset.name, artist: e.target.dataset.artist };
+        console.log(data);
+        $.post("/requests", data);
+      },
       render: function () {
-        return <li><a href="#">{this.props.result}</a></li>;
+        return <li><a href="#" onClick={this.handleClick} data-name={this.props.name} data-artist={this.props.artist}>
+          {this.props.name} - {this.props.artist}
+        </a></li>;
       }
     });
     var SearchBar = React.createClass({
-      loadResultsFromServer: function () {
-        $.getJSON(this.props.src, function (results) {
-          if (this.isMounted()) this.setState({ results: results });
+      handleChange: function () {
+        $.getJSON("/search?q=" + event.target.value, function (results) {
+          if (!results) results = [];
+          if (this.isMounted()) this.setState({ results: results.slice(0, 10) });
         }.bind(this));
       },
-      handleSubmit: function (event) {
-        event.preventDefault();
-      }
       getInitialState: function () {
         return { results: [] };
       },
       render: function () {
         var results = this.state.results.map(function (result) {
-          return <Result result={result} />;
+          return <Result key={Math.random().toString(36)} name={result.name} artist={result.artist} />;
         });
         return <nav className="navbar navbar-default navbar-fixed-top">
           <div className="container">
-            <form action="/search" className="navbar-form" onSubmit="{this.handleSubmit}">
+            <form className="navbar-form">
               <div className="input-group input-group-lg">
                 <span className="input-group-addon">
                   <span className="glyphicon glyphicon-search"></span>
                 </span>
-                <input name="q" placeholder="search for a song..." className="form-control" required data-toggle="dropdown" />
-                <ul className="dropdown-menu">
-                  {results}
-                </ul>
+                <input ref="q" className="form-control" onChange={this.handleChange} placeholder="search for a song..." data-toggle="dropdown" />
+                {results.length > 0 ? <ul className="dropdown-menu">{results}</ul> : null}
               </div>
             </form>
           </div>
@@ -52,9 +56,9 @@
     var Request = React.createClass({
       render: function () {
         return <tr>
-          <td>{this.props.request.Song.Name}</td>
+          <td>{this.props.name}</td>
           <td>&mdash;</td>
-          <td>{this.props.request.Song.Artist}</td>
+          <td>{this.props.artist}</td>
         </tr>;
       }
     });
@@ -74,7 +78,7 @@
       },
       render: function () {
         var requests = this.state.requests.map(function (request) {
-          return <Request request={request} />;
+          return <Request key={request.Song.ID} name={request.Song.Name} artist={request.Song.Artist} />;
         });
         return <div className="container">
           <table>{requests}</table>
@@ -83,7 +87,7 @@
     });
 
     //React.render(<Playlist src="/requests" />, document.body);
-    React.render(<SearchBar src="/search" />, document.body);
+    React.render(<SearchBar />, document.body);
     </script>
   </head>
 </html>

@@ -8,7 +8,7 @@ import (
 	"junmusic"
 	"net"
 	"net/http"
-	// "net/url"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -39,27 +39,26 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	switch cmd {
 	case "POST /requests":
-		request := junmusic.Request{IP: ip, Song: junmusic.Song{Name: "xyz"}}
+		name := r.FormValue("name")
+		artist := r.FormValue("artist")
+		youtube := struct{ ID string }{}
+		err := json.Unmarshal(getbody("http://grooveshark.im/music/getYoutube?track="+url.QueryEscape(name)+"&artist="+url.QueryEscape(artist)), &youtube)
+		if err != nil {
+			panic(err)
+		}
+		request := junmusic.Request{IP: ip, Song: junmusic.Song{ID: youtube.ID, Name: name, Artist: artist}}
 		requests = append(requests, request)
 		votes = append(votes, junmusic.Vote{IP: ip, Request: request, Time: time.Now()})
-	case "POST /votes":
-		votes = append(votes, junmusic.Vote{IP: ip, Time: time.Now()})
 	case "GET /requests":
 		body, err := json.Marshal(requests)
 		if err != nil {
 			panic(err)
 		}
 		io.WriteString(w, string(body))
+	case "POST /votes":
+		votes = append(votes, junmusic.Vote{IP: ip, Time: time.Now()})
 	case "GET /search":
-		io.WriteString(w, string(getbody("http://groovesharks.org/music/typeahead?query="+r.URL.Query().Get("q"))))
-	case "GET /id":
-		q := r.URL.Query()
-		youtube := struct{ ID string }{}
-		err := json.Unmarshal(getbody("http://groovesharks.org/music/getYoutube?track="+q.Get("name")+"&artist="+q.Get("artist")), &youtube)
-		if err != nil {
-			panic(err)
-		}
-		io.WriteString(w, youtube.ID)
+		io.WriteString(w, string(getbody("http://grooveshark.im/music/typeahead?query="+url.QueryEscape(r.URL.Query().Get("q")))))
 	case "GET /":
 		http.ServeFile(w, r, "public/index.html")
 	default:
@@ -68,8 +67,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	requests = append(requests, junmusic.Request{IP: net.ParseIP("::1"), Song: junmusic.Song{ID: "YgSPaXgAdzE", Name: "Loser", Artist: "Beck"}})
-
 	http.HandleFunc("/", handler)
 	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }
