@@ -6,9 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
     <style>
-      .input-group .form-control:not(:first-child):not(:last-child) {
-        border-top-right-radius: 6px;
-        border-bottom-right-radius: 6x;
+      body {
+        margin-top: 84px;
+      }
+      .song-label {
+        white-space: nowrap;
+        text-shadow: -1px -1px 0 #5cb85c, -1px 1px 0 #5cb85c, 1px -1px 0 #5cb85c, 1px 1px 0 #5cb85c;
       }
     </style>
     <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
@@ -27,6 +30,7 @@
           </a></li>;
         }
       });
+
       var SearchBar = React.createClass({
         handleChange: function (event) {
           $.getJSON("/search?q=" + event.target.value, function (results) {
@@ -57,39 +61,40 @@
         }
       });
 
-      var Request = React.createClass({
+      var Song = React.createClass({
         render: function () {
-          return <tr>
-            <td>{this.props.name}</td>
-            <td>&mdash;</td>
-            <td>{this.props.artist}</td>
-          </tr>;
+          return <div className="progress">
+            <div className="progress-bar progress-bar-success progress-bar-striped active song-label" style={{ width: '0%' }}>
+              {this.props.name + " - " + this.props.artist}
+            </div>
+          </div>;
         }
       });
 
       var Playlist = React.createClass({
-        loadRequestsFromServer: function () {
-          $.getJSON("/playlist", function (requests) {
-            if (this.isMounted()) this.setState({ requests: requests });
+        loadPlaylistFromServer: function () {
+          $.getJSON("/playlist", function (playlist) {
+            if (!playlist) playlist = [];
+            if (this.isMounted()) this.setState({ playlist: playlist });
           }.bind(this));
         },
         getInitialState: function () {
-          return { requests: [] };
+          return { playlist: [] };
         },
         componentDidMount: function () {
-          this.loadRequestsFromServer();
-          setInterval(this.loadRequestsFromServer, 5000);
+          this.loadPlaylistFromServer();
+          setInterval(this.loadPlaylistFromServer, 5000);
         },
         render: function () {
-          var requests = this.state.requests.map(function (request) {
-            return <Request key={request.Song.ID} name={request.Song.Name} artist={request.Song.Artist} />;
-          });
-          return <div className="container"><table>{requests}</table></div>;
+          return <div className="container">
+            {this.state.playlist.map(function (song) {
+              return <Song key={song.ID} name={song.Name} artist={song.Artist} />;
+            })}
+          </div>;
         }
       });
 
-      //React.render(<Playlist />, document.body);
-      React.render(<SearchBar />, document.body);
+      React.render(<body><SearchBar /><Playlist /></body>, document.body);
     </script>
   </head>
 </html>

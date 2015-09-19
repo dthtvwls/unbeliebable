@@ -45,7 +45,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err)
 		}
-		song := junmusic.Song{IP: ip, ID: youtube.ID, Name: name, Artist: artist}
+		song := junmusic.Song{IP: ip, ID: youtube.ID, Time: time.Now(), Name: name, Artist: artist}
 		playlist = append(playlist, song)
 		votes = append(votes, junmusic.Vote{IP: ip, ID: youtube.ID, Time: time.Now()})
 	case "GET /playlist":
