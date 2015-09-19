@@ -1,5 +1,12 @@
 package junmusic
 
+import (
+	"net"
+	"time"
+)
+
 type Song struct {
-    ID, Name, Artist string
+	IP               net.IP
+	Time             time.Time
+	ID, Name, Artist string
 }

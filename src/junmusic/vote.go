@@ -1,13 +1,13 @@
 package junmusic
 
 import (
-    "net"
-    "time"
+	"net"
+	"time"
 )
 
 type Vote struct {
-    IP net.IP
-    Request Request
-    Time time.Time
-    Against bool
+	IP      net.IP
+	Time    time.Time
+	ID      string
+	Against bool
 }

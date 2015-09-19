@@ -5,89 +5,91 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      .input-group .form-control:not(:first-child):not(:last-child) {
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6x;
+      }
+    </style>
     <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="//fb.me/react-0.13.3.js"></script>
     <script src="//fb.me/JSXTransformer-0.13.3.js"></script>
     <script type="text/jsx">
-    var Result = React.createClass({
-      handleClick: function (e) {
-        event.preventDefault();
-        var data = { name: e.target.dataset.name, artist: e.target.dataset.artist };
-        console.log(data);
-        $.post("/requests", data);
-      },
-      render: function () {
-        return <li><a href="#" onClick={this.handleClick} data-name={this.props.name} data-artist={this.props.artist}>
-          {this.props.name} - {this.props.artist}
-        </a></li>;
-      }
-    });
-    var SearchBar = React.createClass({
-      handleChange: function () {
-        $.getJSON("/search?q=" + event.target.value, function (results) {
-          if (!results) results = [];
-          if (this.isMounted()) this.setState({ results: results.slice(0, 10) });
-        }.bind(this));
-      },
-      getInitialState: function () {
-        return { results: [] };
-      },
-      render: function () {
-        var results = this.state.results.map(function (result) {
-          return <Result key={Math.random().toString(36)} name={result.name} artist={result.artist} />;
-        });
-        return <nav className="navbar navbar-default navbar-fixed-top">
-          <div className="container">
-            <form className="navbar-form">
-              <div className="input-group input-group-lg">
-                <span className="input-group-addon">
-                  <span className="glyphicon glyphicon-search"></span>
-                </span>
-                <input ref="q" className="form-control" onChange={this.handleChange} placeholder="search for a song..." data-toggle="dropdown" />
-                {results.length > 0 ? <ul className="dropdown-menu">{results}</ul> : null}
-              </div>
-            </form>
-          </div>
-        </nav>;
-      }
-    });
+      var Result = React.createClass({
+        handleClick: function (event) {
+          event.preventDefault();
+          $.post("/playlist", { name: event.target.dataset.name, artist: event.target.dataset.artist });
+        },
+        render: function () {
+          return <li><a href="#" onClick={this.handleClick} data-name={this.props.name} data-artist={this.props.artist}>
+            {this.props.name + " - " + this.props.artist}
+          </a></li>;
+        }
+      });
+      var SearchBar = React.createClass({
+        handleChange: function (event) {
+          $.getJSON("/search?q=" + event.target.value, function (results) {
+            if (!results) results = [];
+            if (this.isMounted()) this.setState({ results: results.slice(0, 10) });
+          }.bind(this));
+        },
+        getInitialState: function () {
+          return { results: [] };
+        },
+        render: function () {
+          var results = this.state.results.map(function (result) {
+            return <Result key={Math.random().toString(36)} name={result.name} artist={result.artist} />;
+          });
+          return <nav className="navbar navbar-default navbar-fixed-top">
+            <div className="container">
+              <form className="navbar-form">
+                <div className="input-group input-group-lg">
+                  <span className="input-group-addon">
+                    <span className="glyphicon glyphicon-search"></span>
+                  </span>
+                  <input ref="q" className="form-control" onChange={this.handleChange} placeholder="search for a song..." data-toggle="dropdown" />
+                  {results.length > 0 ? <ul className="dropdown-menu">{results}</ul> : null}
+                </div>
+              </form>
+            </div>
+          </nav>;
+        }
+      });
 
-    var Request = React.createClass({
-      render: function () {
-        return <tr>
-          <td>{this.props.name}</td>
-          <td>&mdash;</td>
-          <td>{this.props.artist}</td>
-        </tr>;
-      }
-    });
+      var Request = React.createClass({
+        render: function () {
+          return <tr>
+            <td>{this.props.name}</td>
+            <td>&mdash;</td>
+            <td>{this.props.artist}</td>
+          </tr>;
+        }
+      });
 
-    var Playlist = React.createClass({
-      loadRequestsFromServer: function () {
-        $.getJSON(this.props.src, function (requests) {
-          if (this.isMounted()) this.setState({ requests: requests });
-        }.bind(this));
-      },
-      getInitialState: function () {
-        return { requests: [] };
-      },
-      componentDidMount: function () {
-        this.loadRequestsFromServer();
-        setInterval(this.loadRequestsFromServer, 5000);
-      },
-      render: function () {
-        var requests = this.state.requests.map(function (request) {
-          return <Request key={request.Song.ID} name={request.Song.Name} artist={request.Song.Artist} />;
-        });
-        return <div className="container">
-          <table>{requests}</table>
-        </div>;
-      }
-    });
+      var Playlist = React.createClass({
+        loadRequestsFromServer: function () {
+          $.getJSON("/playlist", function (requests) {
+            if (this.isMounted()) this.setState({ requests: requests });
+          }.bind(this));
+        },
+        getInitialState: function () {
+          return { requests: [] };
+        },
+        componentDidMount: function () {
+          this.loadRequestsFromServer();
+          setInterval(this.loadRequestsFromServer, 5000);
+        },
+        render: function () {
+          var requests = this.state.requests.map(function (request) {
+            return <Request key={request.Song.ID} name={request.Song.Name} artist={request.Song.Artist} />;
+          });
+          return <div className="container"><table>{requests}</table></div>;
+        }
+      });
 
-    //React.render(<Playlist src="/requests" />, document.body);
-    React.render(<SearchBar />, document.body);
+      //React.render(<Playlist />, document.body);
+      React.render(<SearchBar />, document.body);
     </script>
   </head>
 </html>

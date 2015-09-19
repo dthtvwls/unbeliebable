@@ -15,7 +15,7 @@ import (
 )
 
 var votes []junmusic.Vote
-var requests []junmusic.Request
+var playlist []junmusic.Song
 
 func getbody(url string) []byte {
 	resp, err := http.Get(url)
@@ -34,11 +34,10 @@ func getbody(url string) []byte {
 // groovesharks.org
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	cmd := r.Method + " " + r.URL.EscapedPath()
 	ip := net.ParseIP(strings.Trim(r.RemoteAddr[0:strings.LastIndex(r.RemoteAddr, ":")], "[]"))
 
-	switch cmd {
-	case "POST /requests":
+	switch r.Method + " " + r.URL.EscapedPath() {
+	case "POST /playlist":
 		name := r.FormValue("name")
 		artist := r.FormValue("artist")
 		youtube := struct{ ID string }{}
@@ -46,17 +45,17 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err)
 		}
-		request := junmusic.Request{IP: ip, Song: junmusic.Song{ID: youtube.ID, Name: name, Artist: artist}}
-		requests = append(requests, request)
-		votes = append(votes, junmusic.Vote{IP: ip, Request: request, Time: time.Now()})
-	case "GET /requests":
-		body, err := json.Marshal(requests)
+		song := junmusic.Song{IP: ip, ID: youtube.ID, Name: name, Artist: artist}
+		playlist = append(playlist, song)
+		votes = append(votes, junmusic.Vote{IP: ip, ID: youtube.ID, Time: time.Now()})
+	case "GET /playlist":
+		body, err := json.Marshal(playlist)
 		if err != nil {
 			panic(err)
 		}
 		io.WriteString(w, string(body))
 	case "POST /votes":
-		votes = append(votes, junmusic.Vote{IP: ip, Time: time.Now()})
+		votes = append(votes, junmusic.Vote{IP: ip, ID: r.FormValue("id"), Time: time.Now()})
 	case "GET /search":
 		io.WriteString(w, string(getbody("http://grooveshark.im/music/typeahead?query="+url.QueryEscape(r.URL.Query().Get("q")))))
 	case "GET /":
