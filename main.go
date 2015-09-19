@@ -3,9 +3,8 @@ package main
 import (
 	"encoding/json"
 	// "fmt"
-	"io"
+	// "io"
 	"io/ioutil"
-	"junmusic"
 	"net"
 	"net/http"
 	"net/url"
@@ -14,8 +13,38 @@ import (
 	"time"
 )
 
-var votes []junmusic.Vote
-var playlist []junmusic.Song
+type Song struct {
+	IP               net.IP
+	Time             time.Time
+	ID, Name, Artist string
+}
+
+type Vote struct {
+	IP      net.IP
+	Time    time.Time
+	ID      string
+	Against bool
+}
+
+var playlist []Song
+var votes []Vote
+
+type player struct{}
+
+func (m *player) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.Method + " " + r.URL.EscapedPath() {
+	case "GET /shift":
+		if len(playlist) > 0 {
+			song := playlist[0]
+			playlist = playlist[1:]
+			w.Write([]byte(song.ID))
+		} else {
+			http.NotFound(w, r)
+		}
+	default:
+		http.ServeFile(w, r, "player.html")
+	}
+}
 
 func getbody(url string) []byte {
 	resp, err := http.Get(url)
@@ -33,7 +62,7 @@ func getbody(url string) []byte {
 // grooveshark.im
 // groovesharks.org
 
-func handler(w http.ResponseWriter, r *http.Request) {
+func client(w http.ResponseWriter, r *http.Request) {
 	ip := net.ParseIP(strings.Trim(r.RemoteAddr[0:strings.LastIndex(r.RemoteAddr, ":")], "[]"))
 
 	switch r.Method + " " + r.URL.EscapedPath() {
@@ -45,27 +74,27 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			panic(err)
 		}
-		song := junmusic.Song{IP: ip, ID: youtube.ID, Time: time.Now(), Name: name, Artist: artist}
+		song := Song{IP: ip, ID: youtube.ID, Time: time.Now(), Name: name, Artist: artist}
 		playlist = append(playlist, song)
-		votes = append(votes, junmusic.Vote{IP: ip, ID: youtube.ID, Time: time.Now()})
+		votes = append(votes, Vote{IP: ip, ID: youtube.ID, Time: time.Now()})
 	case "GET /playlist":
 		body, err := json.Marshal(playlist)
 		if err != nil {
 			panic(err)
 		}
-		io.WriteString(w, string(body))
+		w.Write(body)
 	case "POST /votes":
-		votes = append(votes, junmusic.Vote{IP: ip, ID: r.FormValue("id"), Time: time.Now()})
+		votes = append(votes, Vote{IP: ip, ID: r.FormValue("id"), Time: time.Now()})
 	case "GET /search":
-		io.WriteString(w, string(getbody("http://grooveshark.im/music/typeahead?query="+url.QueryEscape(r.URL.Query().Get("q")))))
-	case "GET /":
-		http.ServeFile(w, r, "public/index.html")
+		w.Write(getbody("http://grooveshark.im/music/typeahead?query=" + url.QueryEscape(r.URL.Query().Get("q"))))
 	default:
-		http.NotFound(w, r)
+		http.ServeFile(w, r, "client.html")
 	}
 }
 
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
+	go http.ListenAndServe("localhost:"+os.Getenv("PORT"), &player{})
+
+	http.HandleFunc("/", client)
+	http.ListenAndServe(":80", nil)
 }

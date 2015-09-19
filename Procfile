@@ -1,1 +1,1 @@
-web: GOPATH=`pwd` PORT=8080 go run main.go
+web: sudo GOPATH=`pwd` PORT=9999 go run main.go
