@@ -43,7 +43,7 @@
         },
         render: function () {
           var results = this.state.results.map(function (result) {
-            return <Result key={Math.random().toString(36)} name={result.name} artist={result.artist} />;
+            return <Result key={Math.random().toString(36)} {...result} />;
           });
           return <nav className="navbar navbar-default navbar-fixed-top">
             <div className="container">
