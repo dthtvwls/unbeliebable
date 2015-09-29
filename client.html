@@ -33,9 +33,13 @@
 
       var SearchBar = React.createClass({
         handleChange: function (event) {
+          var nonce = Math.random().toString(36);
+          this.setState({ results: this.state.results, nonce: nonce });
           $.getJSON("/search?q=" + event.target.value, function (results) {
-            if (!results) results = [];
-            if (this.isMounted()) this.setState({ results: results.slice(0, 10) });
+            if (this.state.nonce === nonce) {
+              if (!results) results = [];
+              if (this.isMounted()) this.setState({ results: results.slice(0, 10) });
+            }
           }.bind(this));
         },
         getInitialState: function () {
