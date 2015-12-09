@@ -13,6 +13,19 @@
         white-space: nowrap;
         text-shadow: -1px -1px #5cb85c, -1px 1px #5cb85c, 1px -1px #5cb85c, 1px 1px #5cb85c;
       }
+      @media (max-width: 767px) {
+        .navbar-form {
+          margin-top: 0;
+          margin-bottom: 0;
+          border-top: 0;
+          border-bottom: 0;
+        }
+      }
+      @media (min-width: 768px) {
+        .navbar-form {
+          margin-left: -15px;
+        }
+      }
     </style>
     <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
@@ -33,7 +46,8 @@
 
       var SearchBar = React.createClass({
         handleChange: function (event) {
-          var nonce = Math.random().toString(36);
+          // keep track of the most recently fired ajax request so that we don't update if an old request is late
+          var nonce = Math.random();
           this.setState({ results: this.state.results, nonce: nonce });
           $.getJSON("/search?q=" + event.target.value, function (results) {
             if (this.state.nonce === nonce) {
@@ -51,7 +65,7 @@
           });
           return <nav className="navbar navbar-default navbar-fixed-top">
             <div className="container">
-              <form className="navbar-form">
+              <form className="navbar-form" onSubmit={function (event) { event.preventDefault(); }}>
                 <div className="input-group input-group-lg">
                   <span className="input-group-addon">
                     <span className="glyphicon glyphicon-search"></span>
@@ -67,11 +81,13 @@
 
       var Song = React.createClass({
         render: function () {
-          return <div className="progress">
-            <div className="progress-bar progress-bar-success progress-bar-striped active song-label" style={{ width: '0%' }}>
-              {this.props.name + " - " + this.props.artist}
+          return <li className="list-group-item active">
+            <div className="progress">
+              <div className="progress-bar progress-bar-success progress-bar-striped active" style={{ width: '0%' }}></div>
             </div>
-          </div>;
+            <span className="badge"><a href="#">👎</a> 0 <a href="#">👍</a></span>
+            {this.props.name + " - " + this.props.artist}
+          </li>;
         }
       });
 
@@ -91,9 +107,11 @@
         },
         render: function () {
           return <div className="container">
-            {this.state.playlist.map(function (song) {
-              return <Song key={song.ID} name={song.Name} artist={song.Artist} />;
-            })}
+            <ul className="list-group">
+              {this.state.playlist.map(function (song) {
+                return <Song key={song.ID} name={song.Name} artist={song.Artist} />;
+              })}
+            </ul>
           </div>;
         }
       });
