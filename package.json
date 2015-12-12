@@ -1,0 +1,40 @@
+{
+  "private": true,
+  "name": "unbeliebable",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dthtvwls/unbeliebable.git"
+  },
+  "scripts": {
+    "start": "sudo GOPATH=`pwd` PORT=8080 go run main.go",
+    "watch": "watchify . -o public/js/main.js"
+  },
+  "browserify": {
+    "transform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015",
+            "react"
+          ]
+        }
+      ]
+    ]
+  },
+  "homepage": "https://github.com/dthtvwls/unbeliebable#readme",
+  "devDependencies": {
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babelify": "^7.2.0",
+    "browserify": "^12.0.1",
+    "watchify": "^3.6.1"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "jquery": "^2.1.4",
+    "react": "^0.14.3",
+    "react-dom": "^0.14.3"
+  }
+}

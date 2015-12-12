@@ -1,0 +1,22 @@
+@import url("//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css");
+
+body {
+  margin-top: 84px;
+}
+/*.song-label {
+  white-space: nowrap;
+  text-shadow: -1px -1px #5cb85c, -1px 1px #5cb85c, 1px -1px #5cb85c, 1px 1px #5cb85c;
+}*/
+@media (max-width: 767px) {
+  .navbar-form {
+    margin-top: 0;
+    margin-bottom: 0;
+    border-top: 0;
+    border-bottom: 0;
+  }
+}
+@media (min-width: 768px) {
+  .navbar-form {
+    margin-left: -15px;
+  }
+}
