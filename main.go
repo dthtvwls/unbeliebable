@@ -1,5 +1,8 @@
 package main
 
+// grooveshark.im
+// groovesharks.org
+
 import (
 	"encoding/json"
 	// "fmt"
@@ -10,40 +13,8 @@ import (
 	"os"
 	"strings"
 	"time"
+	"unbeliebable"
 )
-
-type Song struct {
-	IP               net.IP
-	Time             time.Time
-	ID, Name, Artist string
-}
-
-type Vote struct {
-	IP      net.IP
-	Time    time.Time
-	ID      string
-	Against bool
-}
-
-var playlist []Song
-var votes []Vote
-
-type player struct{}
-
-func (m *player) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.Method + " " + r.URL.EscapedPath() {
-	case "GET /shift":
-		if len(playlist) > 0 {
-			song := playlist[0]
-			playlist = playlist[1:]
-			w.Write([]byte(song.ID))
-		} else {
-			http.NotFound(w, r)
-		}
-	default:
-		http.ServeFile(w, r, "player.html")
-	}
-}
 
 func getbody(url string) []byte {
 	resp, err := http.Get(url)
@@ -58,14 +29,11 @@ func getbody(url string) []byte {
 	return body
 }
 
-// grooveshark.im
-// groovesharks.org
-
-var mux = http.NewServeMux()
-
 func main() {
-	go http.ListenAndServe("localhost:"+os.Getenv("PORT"), &player{})
+	playlist := unbeliebable.Playlist{}
+	go http.ListenAndServe("localhost:"+os.Getenv("PORT"), &unbeliebable.Player{Playlist: &playlist})
 
+	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.Dir("public")))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.Path, ".") {
@@ -82,17 +50,17 @@ func main() {
 				if err != nil {
 					panic(err)
 				}
-				song := Song{IP: ip, ID: youtube.ID, Time: time.Now(), Name: name, Artist: artist}
-				playlist = append(playlist, song)
-				votes = append(votes, Vote{IP: ip, ID: youtube.ID, Time: time.Now()})
+				song := unbeliebable.Song{IP: ip, ID: youtube.ID, Time: time.Now(), Name: name, Artist: artist}
+				playlist.Add(song)
+				// votes = append(votes, Vote{IP: ip, ID: youtube.ID, Time: time.Now()})
 			case "GET /playlist":
-				body, err := json.Marshal(playlist)
+				body, err := json.Marshal(playlist.Songs)
 				if err != nil {
 					panic(err)
 				}
 				w.Write(body)
 			case "POST /votes":
-				votes = append(votes, Vote{IP: ip, ID: r.FormValue("id"), Time: time.Now()})
+				// votes = append(votes, Vote{IP: ip, ID: r.FormValue("id"), Time: time.Now()})
 			case "GET /search":
 				w.Write(getbody("http://grooveshark.im/music/typeahead?query=" + url.QueryEscape(r.URL.Query().Get("q"))))
 			default:

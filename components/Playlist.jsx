@@ -18,7 +18,7 @@ export default class Playlist extends React.Component {
 
   componentDidMount() {
     this.loadPlaylistFromServer();
-    this.state.interval = setInterval(this.loadPlaylistFromServer.bind(this), 5000);
+    this.state.interval = setInterval(this.loadPlaylistFromServer.bind(this), 1000);
   }
 
   componentWillUnmount() {
