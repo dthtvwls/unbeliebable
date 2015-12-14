@@ -23,12 +23,17 @@ func (m *Playlist) Add(song Song) error {
 	return nil
 }
 
-func (m *Playlist) Vote(ip net.IP, id string, against bool) {
+func (m *Playlist) Vote(ip net.IP, id string, against bool) error {
 	for i := range m.Songs {
 		if m.Songs[i].ID == id {
-			m.Songs[i].Vote(Vote{IP: ip, Time: time.Now(), Against: against})
+			value := 1
+			if against {
+				value = -1
+			}
+			return m.Songs[i].Vote(Vote{IP: ip, Time: time.Now(), Value: value})
 		}
 	}
+	return errors.New("song not found")
 }
 
 func (m *Playlist) Shift() (Song, error) {

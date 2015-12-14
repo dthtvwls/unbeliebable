@@ -6,7 +6,7 @@ import (
 )
 
 type Vote struct {
-	IP      net.IP
-	Time    time.Time
-	Against bool
+	IP    net.IP
+	Time  time.Time
+	Value int
 }

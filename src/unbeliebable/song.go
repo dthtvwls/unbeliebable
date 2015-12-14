@@ -22,3 +22,11 @@ func (m *Song) Vote(vote Vote) error {
 	m.Votes = append(m.Votes, vote)
 	return nil
 }
+
+func (m *Song) Score() int {
+	sum := 0
+	for i := range m.Votes {
+		sum += m.Votes[i].Value
+	}
+	return sum
+}
