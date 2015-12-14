@@ -3,6 +3,9 @@
 body {
   margin-top: 84px;
 }
+.badge a:hover {
+  text-decoration: none;
+}
 /*.song-label {
   white-space: nowrap;
   text-shadow: -1px -1px #5cb85c, -1px 1px #5cb85c, 1px -1px #5cb85c, 1px 1px #5cb85c;

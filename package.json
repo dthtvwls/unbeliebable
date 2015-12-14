@@ -7,7 +7,7 @@
     "url": "git+https://github.com/dthtvwls/unbeliebable.git"
   },
   "scripts": {
-    "start": "sudo GOPATH=`pwd` PORT=8080 go run main.go",
+    "start": "sudo GOPATH=`pwd` PORT=8080 go run unbeliebable.go",
     "watch": "watchify . -o public/js/main.js"
   },
   "browserify": {

@@ -14,6 +14,12 @@ export default class Playlist extends React.Component {
       if (!playlist) playlist = [];
       this.setState({ playlist: playlist });
     }.bind(this));
+    $.getJSON("/nowplaying", function (nowplaying) {
+      this.setState({ nowplaying: nowplaying });
+    }.bind(this));
+    $.getJSON("/elapsedtime", function (elapsedtime) {
+      this.setState({ elapsedtime: elapsedtime });
+    }.bind(this));
   }
 
   componentDidMount() {
@@ -28,6 +34,15 @@ export default class Playlist extends React.Component {
   render() {
     return <div className="container">
       <ul className="list-group">
+        {this.state.nowplaying ?
+          <li className="list-group-item active">
+            <div className="progress">
+              <div className="progress-bar progress-bar-success progress-bar-striped active" style={{ width: this.state.elapsedtime + '%' }}></div>
+            </div>
+            <span className="badge"><a href="#">👎</a> 0 <a href="#">👍</a></span>
+            {this.state.nowplaying.Name + " - " + this.state.nowplaying.Artist}
+          </li>
+        : ''}
         {this.state.playlist.map(function (song) {
           return <Song key={song.ID} name={song.Name} artist={song.Artist} />;
         })}

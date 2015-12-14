@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 	"unbeliebable"
@@ -36,6 +37,8 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.FileServer(http.Dir("public")))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
 		if strings.Contains(r.URL.Path, ".") {
 			mux.ServeHTTP(w, r)
 		} else {
@@ -46,23 +49,46 @@ func main() {
 				name := r.FormValue("name")
 				artist := r.FormValue("artist")
 				youtube := struct{ ID string }{}
-				err := json.Unmarshal(getbody("http://grooveshark.im/music/getYoutube?track="+url.QueryEscape(name)+"&artist="+url.QueryEscape(artist)), &youtube)
-				if err != nil {
+
+				if err := json.Unmarshal(getbody("http://grooveshark.im/music/getYoutube?track="+url.QueryEscape(name)+"&artist="+url.QueryEscape(artist)), &youtube); err != nil {
 					panic(err)
 				}
-				song := unbeliebable.Song{IP: ip, ID: youtube.ID, Time: time.Now(), Name: name, Artist: artist}
-				playlist.Add(song)
-				// votes = append(votes, Vote{IP: ip, ID: youtube.ID, Time: time.Now()})
+
+				playlist.Add(unbeliebable.Song{IP: ip, ID: youtube.ID, Time: time.Now(), Name: name, Artist: artist})
+				playlist.Vote(ip, youtube.ID)
+
 			case "GET /playlist":
-				body, err := json.Marshal(playlist.Songs)
-				if err != nil {
+				if body, err := json.Marshal(playlist.Songs); err != nil {
 					panic(err)
+				} else {
+					w.Write(body)
 				}
-				w.Write(body)
+
+			case "GET /nowplaying":
+				if body, err := json.Marshal(playlist.NowPlaying); err != nil {
+					panic(err)
+				} else {
+					w.Write(body)
+				}
+
+			case "POST /elapsedtime":
+				if body, err := ioutil.ReadAll(r.Body); err != nil {
+					panic(err)
+				} else if i, err := strconv.Atoi(string(body)); err != nil {
+					panic(err)
+				} else {
+					playlist.ElapsedTime = i
+				}
+
+			case "GET /elapsedtime":
+				w.Write([]byte(strconv.Itoa(playlist.ElapsedTime)))
+
 			case "POST /votes":
-				// votes = append(votes, Vote{IP: ip, ID: r.FormValue("id"), Time: time.Now()})
+				playlist.Vote(ip, r.FormValue("id"))
+
 			case "GET /search":
 				w.Write(getbody("http://grooveshark.im/music/typeahead?query=" + url.QueryEscape(r.URL.Query().Get("q"))))
+
 			default:
 				http.ServeFile(w, r, "public/index.html")
 			}

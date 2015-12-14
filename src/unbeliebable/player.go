@@ -28,10 +28,21 @@ func (m *Player) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				<body>
 					<script>
 						window.onYouTubeIframeAPIReady = function () {
-							new YT.Player(document.body, {
+							var player = new YT.Player(document.body, {
 								videoId: "` + song.ID + `",
 								playerVars: { autoplay: 1 },
 								events: {
+									onReady: function (event) {
+										event.target.playVideo();
+										setInterval(function () {
+											var pct = Math.round(player.getCurrentTime() / player.getDuration() * 100);
+											console.log(pct);
+
+											var xhr = new XMLHttpRequest();
+											xhr.open("POST", "http://localhost/elapsedtime");
+        									xhr.send(pct);
+										}, 1000);
+									},
 									onStateChange: function (event) {
 										if (event.data === YT.PlayerState.ENDED) location.reload();
 									}
