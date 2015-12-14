@@ -1,7 +1,4 @@
-package main
-
-// grooveshark.im
-// groovesharks.org
+package main // grooveshark.im, groovesharks.org
 
 import (
 	"encoding/json"
@@ -55,7 +52,7 @@ func main() {
 				}
 
 				playlist.Add(unbeliebable.Song{IP: ip, ID: youtube.ID, Time: time.Now(), Name: name, Artist: artist})
-				playlist.Vote(ip, youtube.ID)
+				playlist.Vote(ip, youtube.ID, false)
 
 			case "GET /playlist":
 				if body, err := json.Marshal(playlist.Songs); err != nil {
@@ -84,7 +81,11 @@ func main() {
 				w.Write([]byte(strconv.Itoa(playlist.ElapsedTime)))
 
 			case "POST /votes":
-				playlist.Vote(ip, r.FormValue("id"))
+				if against, err := strconv.ParseBool(r.FormValue("against")); err != nil {
+					panic(err)
+				} else {
+					playlist.Vote(ip, r.FormValue("id"), against)
+				}
 
 			case "GET /search":
 				w.Write(getbody("http://grooveshark.im/music/typeahead?query=" + url.QueryEscape(r.URL.Query().Get("q"))))

@@ -3,6 +3,8 @@ package unbeliebable
 import (
 	"errors"
 	"net"
+	// "sort"
+	"time"
 )
 
 type Playlist struct {
@@ -11,12 +13,22 @@ type Playlist struct {
 	Songs       []Song
 }
 
-func (m *Playlist) Add(song Song) {
+func (m *Playlist) Add(song Song) error {
+	for i := range m.Songs {
+		if m.Songs[i].ID == song.ID {
+			return errors.New("song already queued")
+		}
+	}
 	m.Songs = append(m.Songs, song)
+	return nil
 }
 
-func (m *Playlist) Vote(ip net.IP, id string) {
-
+func (m *Playlist) Vote(ip net.IP, id string, against bool) {
+	for i := range m.Songs {
+		if m.Songs[i].ID == id {
+			m.Songs[i].Vote(Vote{IP: ip, Time: time.Now(), Against: against})
+		}
+	}
 }
 
 func (m *Playlist) Shift() (Song, error) {

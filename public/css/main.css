@@ -5,6 +5,7 @@ body {
 }
 .badge a:hover {
   text-decoration: none;
+  text-shadow: -1px -1px 2px #ff69b4, -1px 1px 2px #ff69b4, 1px -1px 2px #ff69b4, 1px 1px 2px #ff69b4;
 }
 /*.song-label {
   white-space: nowrap;

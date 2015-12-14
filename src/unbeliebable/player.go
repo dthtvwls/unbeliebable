@@ -35,12 +35,9 @@ func (m *Player) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 									onReady: function (event) {
 										event.target.playVideo();
 										setInterval(function () {
-											var pct = Math.round(player.getCurrentTime() / player.getDuration() * 100);
-											console.log(pct);
-
 											var xhr = new XMLHttpRequest();
 											xhr.open("POST", "http://localhost/elapsedtime");
-        									xhr.send(pct);
+        									xhr.send(Math.round(player.getCurrentTime() / player.getDuration() * 100));
 										}, 1000);
 									},
 									onStateChange: function (event) {
