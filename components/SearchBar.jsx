@@ -1,41 +1,41 @@
 import $ from 'jquery';
 import React from 'react';
+import Autosuggest from 'react-autosuggest';
 import Result from './Result.jsx';
 
 export default class SearchBar extends React.Component {
 
   constructor() {
     super();
-    this.state = { results: [] };
-    this.onChange = this.onChange.bind(this);
+    this.getSuggestions = this.getSuggestions.bind(this);
   }
 
-  onChange(event) {
-    // keep track of the most recently fired ajax request so that we don't update if an old request is late
-    var nonce = Math.random();
-    this.setState({ results: this.state.results, nonce: nonce });
-    $.getJSON("/search?q=" + event.target.value, function (results) {
-      if (this.state.nonce === nonce) {
-        if (!results) results = [];
-        this.setState({ results: results.slice(0, 10) });
-      }
+  getSuggestions(input, callback) {
+    $.getJSON("/search?q=" + input, function (results) {
+      if (results) callback(null, results.slice(0, 5));
     }.bind(this));
   }
 
+  renderSuggestion(suggestion, input) {
+    return suggestion.value;
+  }
+
+  onSuggestionSelected(suggestion, event) {
+    event.preventDefault();
+    $.post("/playlist", { name: suggestion.name, artist: suggestion.artist });
+  }
+
   render() {
-    var results = this.state.results.map(function (result) {
-      return <Result key={Math.random().toString(36)} {...result} />;
-    });
     return <nav className="navbar navbar-default navbar-fixed-top">
       <div className="container">
-        <form className="navbar-form" onSubmit={function (event) { event.preventDefault(); }}>
-          <div className="input-group input-group-lg">
-            <span className="input-group-addon">
-              <span className="glyphicon glyphicon-search"></span>
-            </span>
-            <input ref="q" className="form-control" onChange={this.onChange} placeholder="search for a song..." data-toggle="dropdown" />
-            {results.length > 0 ? <ul className="dropdown-menu">{results}</ul> : null}
-          </div>
+        <form className="navbar-form">
+          <Autosuggest
+            suggestions={this.getSuggestions}
+            suggestionRenderer={this.renderSuggestion}
+            onSuggestionSelected={this.onSuggestionSelected}
+            suggestionValue={() => ''}
+            inputAttributes={{placeholder: 'search for a song...'}}
+          />
         </form>
       </div>
     </nav>;

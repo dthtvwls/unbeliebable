@@ -46,7 +46,7 @@ func main() {
 				artist := r.FormValue("artist")
 				youtube := struct{ ID string }{}
 
-				if err := json.Unmarshal(getbody("http://grooveshark.im/music/getYoutube?track="+url.QueryEscape(name)+"&artist="+url.QueryEscape(artist)), &youtube); err != nil {
+				if err := json.Unmarshal(getbody("http://groovesharks.org/music/getYoutube?track="+url.QueryEscape(name)+"&artist="+url.QueryEscape(artist)), &youtube); err != nil {
 					panic(err)
 				}
 
@@ -87,7 +87,7 @@ func main() {
 				}
 
 			case "GET /search":
-				w.Write(getbody("http://grooveshark.im/music/typeahead?query=" + url.QueryEscape(r.URL.Query().Get("q"))))
+				w.Write(getbody("http://groovesharks.org/music/typeahead?query=" + url.QueryEscape(r.URL.Query().Get("q"))))
 
 			default:
 				http.ServeFile(w, r, "public/index.html")

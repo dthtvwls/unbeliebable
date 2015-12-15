@@ -1,4 +1,5 @@
 @import url("//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css");
+@import url("/css/autosuggest.css");
 
 body {
   margin-top: 84px;

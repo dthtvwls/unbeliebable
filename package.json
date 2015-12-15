@@ -35,6 +35,7 @@
     "bootstrap": "^3.3.6",
     "jquery": "^2.1.4",
     "react": "^0.14.3",
+    "react-autosuggest": "^2.2.0",
     "react-dom": "^0.14.3"
   }
 }

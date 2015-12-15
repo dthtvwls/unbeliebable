@@ -39,7 +39,11 @@ export default class Playlist extends React.Component {
             <div className="progress">
               <div className="progress-bar progress-bar-success progress-bar-striped active" style={{ width: this.state.elapsedtime + '%' }}></div>
             </div>
-            <span className="badge"><a href="#">👎</a> 0 <a href="#">👍</a></span>
+            <span className="badge">
+              <a href="#">👎</a>
+              &nbsp; {this.state.nowplaying.Votes ? this.state.nowplaying.Votes.reduce(function (score, vote) { return score + vote.Value; }, 0) : 0} &nbsp;
+              <a href="#">👍</a>
+            </span>
             {this.state.nowplaying.Name + " - " + this.state.nowplaying.Artist}
           </li>
         : ''}
