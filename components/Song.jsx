@@ -12,13 +12,11 @@ export default class Song extends React.Component {
   voteDown(event) {
     event.preventDefault();
     $.post("/votes", { id: this.props.id, against: true });
-    event.target.click(); // hacky way to force state update, ugh
   }
 
   voteUp(event) {
     event.preventDefault();
     $.post("/votes", { id: this.props.id, against: false });
-    event.target.click(); // hacky way to force state update, ugh
   }
 
   render() {

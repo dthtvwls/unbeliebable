@@ -51,7 +51,6 @@ func main() {
 				}
 
 				playlist.Add(unbeliebable.Song{IP: ip, ID: youtube.ID, Time: time.Now(), Name: name, Artist: artist})
-				playlist.Vote(ip, youtube.ID, false)
 
 			case "GET /playlist":
 				if body, err := json.Marshal(playlist.Songs); err != nil {
