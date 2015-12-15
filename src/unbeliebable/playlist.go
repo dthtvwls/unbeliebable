@@ -34,7 +34,10 @@ func (m *Playlist) Vote(ip net.IP, id string, against bool) error {
 			}
 
 			err := m.Songs[i].Vote(Vote{IP: ip, Time: time.Now(), Value: value})
-			if err == nil { // don't bother to sort if the vote wasn't accepted!
+			if err == nil { // don't bother to sort/prune if the vote wasn't accepted
+				if m.Songs[i].Disqualifies() {
+					m.Songs = append(m.Songs[:i], m.Songs[i+1:]...)
+				}
 				sort.Sort(ByVotes(m.Songs))
 			}
 			return err

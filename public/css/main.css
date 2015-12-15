@@ -1,18 +1,14 @@
 @import url("//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css");
 @import url("/css/autosuggest.css");
 
-body {
-  margin-top: 84px;
-}
 .badge a:hover {
   text-decoration: none;
   text-shadow: -1px -1px 2px #ff69b4, -1px 1px 2px #ff69b4, 1px -1px 2px #ff69b4, 1px 1px 2px #ff69b4;
 }
-/*.song-label {
-  white-space: nowrap;
-  text-shadow: -1px -1px #5cb85c, -1px 1px #5cb85c, 1px -1px #5cb85c, 1px 1px #5cb85c;
-}*/
 @media (max-width: 767px) {
+  body {
+    margin-top: 62px;
+  }
   .navbar-form {
     margin-top: 0;
     margin-bottom: 0;
@@ -23,5 +19,9 @@ body {
 @media (min-width: 768px) {
   .navbar-form {
     margin-left: -15px;
+    margin-right: -15px;
+  }
+  body {
+    margin-top: 61px;
   }
 }

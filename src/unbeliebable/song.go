@@ -23,6 +23,19 @@ func (m *Song) Vote(vote Vote) error {
 	return nil
 }
 
+func (m *Song) Disqualifies() bool {
+	downvotes := 0
+	for i := range m.Votes {
+		if m.Votes[i].Value < 0 {
+			downvotes += m.Votes[i].Value
+		}
+		if downvotes <= -3 {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *Song) Score() int {
 	sum := 0
 	for i := range m.Votes {
