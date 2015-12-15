@@ -26,6 +26,8 @@ func getbody(url string) []byte {
 	return body
 }
 
+var skip = false // the dumbest hack in the whole project
+
 func main() {
 	playlist := unbeliebable.Playlist{}
 	go http.ListenAndServe("localhost:"+os.Getenv("PORT"), &unbeliebable.Player{Playlist: &playlist})
@@ -66,6 +68,20 @@ func main() {
 					w.Write(body)
 				}
 
+			case "POST /nowplaying":
+				if against, err := strconv.ParseBool(r.FormValue("against")); err != nil {
+					panic(err)
+				} else if playlist.NowPlaying.ID == r.FormValue("id") {
+					value := 1
+					if against {
+						value = -1
+					}
+					playlist.NowPlaying.Vote(unbeliebable.Vote{IP: ip, Time: time.Now(), Value: value})
+					if playlist.NowPlaying.Disqualifies() {
+						skip = true // again, worst idea. a global "skip" flag! i'm ashamed of myself
+					}
+				}
+
 			case "POST /elapsedtime":
 				if body, err := ioutil.ReadAll(r.Body); err != nil {
 					panic(err)
@@ -73,6 +89,12 @@ func main() {
 					panic(err)
 				} else {
 					playlist.ElapsedTime = i
+
+					// once again, i apologize to the computer science gods for this abominable creation
+					if skip {
+						w.Write([]byte("skip"))
+						skip = false
+					}
 				}
 
 			case "GET /elapsedtime":

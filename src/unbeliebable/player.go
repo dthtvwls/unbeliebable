@@ -36,6 +36,9 @@ func (m *Player) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 										event.target.playVideo();
 										setInterval(function () {
 											var xhr = new XMLHttpRequest();
+											xhr.addEventListener("load", function () {
+												if (xhr.responseText === "skip") location.reload();
+											});
 											xhr.open("POST", "http://localhost/elapsedtime");
         									xhr.send(Math.round(player.getCurrentTime() / player.getDuration() * 100));
 										}, 1000);

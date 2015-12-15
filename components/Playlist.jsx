@@ -7,6 +7,8 @@ export default class Playlist extends React.Component {
   constructor() {
     super();
     this.state = { playlist: [] };
+    this.voteDown = this.voteDown.bind(this);
+    this.voteUp = this.voteUp.bind(this);
   }
 
   loadPlaylistFromServer() {
@@ -31,18 +33,28 @@ export default class Playlist extends React.Component {
     clearInterval(this.state.interval);
   }
 
+  voteDown(event) {
+    event.preventDefault();
+    $.post("/nowplaying", { id: this.state.nowplaying.ID, against: true });
+  }
+
+  voteUp(event) {
+    event.preventDefault();
+    $.post("/nowplaying", { id: this.state.nowplaying.ID, against: false });
+  }
+
   render() {
     return <div className="container">
       <ul className="list-group">
         {this.state.nowplaying ?
           <li className="list-group-item active">
             <div className="progress">
-              <div className="progress-bar progress-bar-success progress-bar-striped active" style={{ width: this.state.elapsedtime + '%' }}></div>
+              <div className="progress-bar progress-bar-info progress-bar-striped active" style={{ width: this.state.elapsedtime + '%' }}></div>
             </div>
             <span className="badge">
-              <a href="#">👎</a>
+              <a href="#" onClick={this.voteDown}>👎</a>
               &nbsp; {this.state.nowplaying.Votes ? this.state.nowplaying.Votes.reduce(function (score, vote) { return score + vote.Value; }, 0) : 0} &nbsp;
-              <a href="#">👍</a>
+              <a href="#" onClick={this.voteUp}>👍</a>
             </span>
             {this.state.nowplaying.Name + " - " + this.state.nowplaying.Artist}
           </li>
