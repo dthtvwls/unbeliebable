@@ -2,7 +2,6 @@ package main // grooveshark.im, groovesharks.org
 
 import (
 	"encoding/json"
-	// "fmt"
 	"io/ioutil"
 	"net"
 	"net/http"

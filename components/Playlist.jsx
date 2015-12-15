@@ -44,7 +44,7 @@ export default class Playlist extends React.Component {
           </li>
         : ''}
         {this.state.playlist.map(function (song) {
-          return <Song key={song.ID} name={song.Name} artist={song.Artist} />;
+          return <Song key={song.ID} id={song.ID} name={song.Name} artist={song.Artist} score={song.Votes ? song.Votes.reduce(function (score, vote) { return score + vote.Value; }, 0) : 0} />;
         })}
       </ul>
     </div>;

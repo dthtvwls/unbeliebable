@@ -3,7 +3,7 @@ package unbeliebable
 import (
 	"errors"
 	"net"
-	// "sort"
+	"sort"
 	"time"
 )
 
@@ -20,6 +20,7 @@ func (m *Playlist) Add(song Song) error {
 		}
 	}
 	m.Songs = append(m.Songs, song)
+	sort.Sort(ByVotes(m.Songs))
 	return nil
 }
 
@@ -30,7 +31,12 @@ func (m *Playlist) Vote(ip net.IP, id string, against bool) error {
 			if against {
 				value = -1
 			}
-			return m.Songs[i].Vote(Vote{IP: ip, Time: time.Now(), Value: value})
+
+			err := m.Songs[i].Vote(Vote{IP: ip, Time: time.Now(), Value: value})
+			if err != nil {
+				sort.Sort(ByVotes(m.Songs))
+			}
+			return err
 		}
 	}
 	return errors.New("song not found")

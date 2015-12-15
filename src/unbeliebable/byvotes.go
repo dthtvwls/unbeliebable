@@ -11,5 +11,5 @@ func (a ByVotes) Swap(i, j int) {
 }
 
 func (a ByVotes) Less(i, j int) bool {
-    return a[i].Score() < a[j].Score()
+    return a[i].Score() > a[j].Score()
 }
