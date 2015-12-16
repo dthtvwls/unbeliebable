@@ -1,7 +1,6 @@
 import $ from 'jquery';
 import React from 'react';
 import Autosuggest from 'react-autosuggest';
-import Result from './Result.jsx';
 
 export default class SearchBar extends React.Component {
 
