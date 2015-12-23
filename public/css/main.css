@@ -1,6 +1,9 @@
 @import url("//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css");
 @import url("/css/autosuggest.css");
 
+.badge a {
+  color: gold;
+}
 .badge a:hover {
   text-decoration: none;
   text-shadow: -1px -1px 2px #ff69b4, -1px 1px 2px #ff69b4, 1px -1px 2px #ff69b4, 1px 1px 2px #ff69b4;

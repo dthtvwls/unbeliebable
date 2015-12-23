@@ -22,9 +22,9 @@ export default class Song extends React.Component {
   render() {
     return <li className="list-group-item">
       <span className="badge">
-        <a href="#" onClick={this.voteDown}>👎</a>
+        <a href="#" onClick={this.voteDown}>▼</a>
         &nbsp; {this.props.score} &nbsp;
-        <a href="#" onClick={this.voteUp}>👍</a>
+        <a href="#" onClick={this.voteUp}>▲</a>
       </span>
       {this.props.name + " - " + this.props.artist}
     </li>;
